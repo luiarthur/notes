@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath} % align
+\def\paren#1{\left(#1\right)}
+\def\abs#1{\left|#1\right|}
+
+\begin{document}
+
+
+\section*{Jeffreys Prior (included in exam)}
+\[
+  \pi(\theta) = [I(\theta)]^{1/2} 
+\]
+where $I(\theta)$ is the expected Fisher's information
+\[
+  I(\theta) = -E[\frac{d^2}{d\theta}\log p(x|\theta)]
+\]
+
+\noindent
+Multidimensional case:
+\begin{align*}
+  \theta &= (\theta_1,...,\theta_p)' \\
+  \pi(\theta) &= [det(I(\theta))]^{1/2} \\
+  I_{ij}(\theta) &= -E[\frac{d^2}{d\theta_i d\theta_j}\log p(x|\theta)]
+\end{align*}
+
+\noindent
+$I(\theta)$ for model $x_i \sim \text{Binomial}(n,\theta)$ is $\frac{n^2}{\theta(1-\theta)}$. So, $\pi_J(\theta) \propto \theta^{-1/2}(1-\theta)^{-1/2}$. i.e. $\theta \sim Beta(1/2,1/2)$. 
+
+\begin{align*}
+  \theta &\sim Unif(0,1) \\
+  \theta &\sim Beta(1/2,1/2)(J) \\
+\end{align*}
+
+\subsection*{Invariance and Jeffreys Prior}
+Take $\phi = h(\theta)$, where $h$ is a one-to-one transformation \\
+\noindent 1. Find Jeffreys prior for $\theta$ $\pi_J(\theta)$, transform it to obtain $\pi*(\phi)$.\\
+\noindent 2. Find Jeffreys prior for $\phi$ $\pi_J(\theta) = \pi*(\phi)$ 
+
+\begin{align*}
+  \theta &= g(\phi)\\
+  I(\phi) &= -E\left[\frac{d^2}{d\phi^2}\log p(x|g(\phi))\right] \\
+          &= I(\theta) \paren{\frac{d\theta}{d\phi}}^2
+  \\
+  \Rightarrow \pi_J(\phi) &= \paren{I(\phi)}^{1/2} \\
+                          &= \pi_J(\theta) \abs{\frac{d\theta}{d\phi}}\\
+\end{align*}
+Therefore, $\pi_J(\theta=\pi*(\phi)$ and Jeffreys prior is invariant.\\
+
+\noindent
+Goods: automatic, invariant\\
+Bads: Possibly Improper, don't satisfy likelihood principle, possibly non-admissible estimators.\\
+
+\noindent
+Jeffreys Prior are generally not conjugate. But can be seen as limiting distributions of conjugate priors. e.g. 
+\begin{align*}
+  x|\theta &\sim N(\theta,1) \\
+  \theta &\sim N(\mu,tau^2)
+\end{align*}
+As $\tau^2$ goes to infinity, we get the jeffreys prior.
+$\pi_J(\theta) \propto 1*$. \\
+
+\noindent
+As an excercise, show that $\pi_J(\theta) \propto 1$ for the Normal likelihood. Then show the limiting distribution of the prior above is the jeffreys prior.\\
+
+\noindent
+Jeffreys prior for $x \sim N(\mu,\sigma^2)$ is $\pi(\mu,\sigma) \propto \frac{1}{\sigma^2}$.\\
+
+\noindent
+Jeffreys suggested $\pi(\mu,\sigma) = \pi_J(\mu)\pi_J(\sigma) \propto 1 \times \frac{1}{\sigma} \Rightarrow \pi(\mu,\sigma^2) \propto \frac{1}{\sigma^2}$\\
+
+\noindent
+1. Jeffreys prior and the likelihood principle. $x \sim Bin(n,\theta)$.\\
+2. $y \sim Neg-Bin(s,\theta)$\\
+J prior in case 1 is Beta(.5,.5), J prior in case 2 is Beta(0,.5). \\
+The same likelihood but different J priors. So it does not satisfy the likelihood principle.\\
+
+
+
+\end{document}
