@@ -7,7 +7,7 @@ header-includes:
         
 ---
 
-$\newcommand{\norm}[1]{\left\lVert#1\right\rVert}$
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
 $$
   y = \mu_0(x) + \epsilon, \epsilon \sim N(0,\sigma^2)
@@ -58,4 +58,5 @@ In MCMC, the posterior for the hyperparameters will involve matrix inversion of 
 ### Research
 
 1. low rank models
+    - Sherman-Woodbury-Morrison Matrix Identity. Look it up. Use it for inverting $\sigma^2I + K$. Reduces $n^3$ to $n^2$.
 2. class of sparsity based models
