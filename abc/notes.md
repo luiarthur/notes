@@ -4,10 +4,9 @@ geometry: margin=1in
 fontsize: 12pt
 header-includes: 
     - \usepackage{bm}
+    - \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
         
 ---
-
-\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
 $$
   y = \mu_0(x) + \epsilon, \epsilon \sim N(0,\sigma^2)
@@ -20,13 +19,13 @@ $\mu \sim GP(m(\cdot),\kappa(\cdot,\cdot))$ where $m(\cdot)$ is a known function
 
 Covariance kernel determines smoothness of the prior realizations. Holder $\alpha$-continuous continuous.
 
-If $\kappa(x,z) = \kappa(||x-z||)$ then the kernel is stationary. That is if the covariance depends only on the distance, it is stationary.
+If $\kappa(x,z) = \kappa(\norm{x-z})$ then the kernel is stationary. That is if the covariance depends only on the distance, it is stationary.
 
 ### Popular kernel choices
 
-- exponential kernel: $\tau^2\exp(-\phi||x-z||)$
-- squared exponential / Gaussian kernel: $\tau^2\exp(-\phi||x-z||^2)$
-- matern function: $\frac{\tau^2(\phi||x-z||)^\nu}{\Gamma(\nu)2^{\nu-1}}\kappa_\nu(\phi||x-z||)$ where $\kappa_\nu$ is the modified Bessel function of the second kind.
+- exponential kernel: $\tau^2\exp(-\phi\norm{x-z})$
+- squared exponential / Gaussian kernel: $\tau^2\exp(-\phi\norm{x-z}^2)$
+- matern function: $\frac{\tau^2(\phi\norm{x-z})^\nu}{\Gamma(\nu)2^{\nu-1}}\kappa_\nu(\phi\norm{x-z})$ where $\kappa_\nu$ is the modified Bessel function of the second kind.
     - $\nu$: smoothness parameter
         - $\nu=1/2 \Rightarrow$ exponential kernel
         - $\nu=\infty \Rightarrow$ Gaussian kernel
