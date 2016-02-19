@@ -58,3 +58,5 @@ In MCMC, the posterior for the hyperparameters will involve matrix inversion of 
 1. low rank models
     - Sherman-Woodbury-Morrison Matrix Identity. Look it up. Use it for inverting $\sigma^2I + K$. Reduces $n^3$ to $n^2$.
 2. class of sparsity based models
+
+
