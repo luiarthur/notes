@@ -5,7 +5,6 @@ fontsize: 12pt
 header-includes: 
     - \usepackage{bm}
     - \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
-        
 ---
 
 $$
