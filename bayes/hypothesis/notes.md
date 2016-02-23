@@ -1,5 +1,5 @@
 ---
-title: Woodbury for GP
+title: Hypothesis Testing
 geometry: margin=1in
 fontsize: 12pt
 header-includes: 
@@ -9,128 +9,87 @@ header-includes:
     - \newcommand{\bk}[1]{\left[#1\right]}
     - \newcommand{\bc}[1]{ \{#1\} }
     - \newcommand{\abs}[1]{ \left|#1\right| }
+    - \newcommand{\mat}{ \begin{pmatrix} }
+    - \newcommand{\tam}{ \end{pmatrix} }
 ---
 
-$$
-\begin{aligned}
-  y|\mu, \sigma^2 &\sim N(\mu(x), \sigma^2I) \\
-  \mu &\sim N(0, K) \\
-  \Rightarrow\\
-  \pi(\centerdot | y) &\propto N(y | 0, \sigma^2I+K)
-\end{aligned}
-$$
+## Classical Setting
 
-For matrix inversion of $\sigma^2I+K$ there are two ways to solve
+$H_0: \theta \in \Theta_0$ vs. $H_1: \theta \in \Theta_1$
 
-1. Low rank methods
-2. Sparsity based methods
+|---------------------|:-------------:|:---:|
+|                     |$H_0$ is True   |$H_0$ is False|
+|Reject $H_0$         |Type I error |Correct 
+|Fail to Reject $H_0$ |Correct      |Type II error 
 
-## Low rank methods
-
-  - Kernel convolution (Higdon 2001)
-      - $\mu(x) \int~\kappa(x-u)z(u)~du$
-      - if $\mu(x)$ is a Gaussian it can be written in the above way where $\kappa(\cdot)$ is some function and $z(u)$ is a white noise process.
-      - $\mu(x) \approx \sum_{l=1}^m \kappa(x-u^*_l) z(u^*_l)$, $u_l^*$ are $p\times 1$
-      - $y_i = \sum_{l=1}^m \kappa(x-u_l^*)z(u_l^*) + \epsilon_i$ becomes the new fitted model instead of the original $y_i = \mu(x_i) + \epsilon_i$
-$$
-\begin{pmatrix}
-  y_1 \\
-  \vdots\\
-  y_n
-\end{pmatrix}
-=
-\begin{pmatrix}
-  \kappa(x_1-u_1^*) & \cdots &\kappa(x_1-u_m^*)\\
-  \vdots & & \vdots\\
-  \kappa(x_n-u_1^*) & \cdots &\kappa(x_n-u_m^*)\\
-\end{pmatrix}
-\begin{pmatrix}
-  z(u_1^*)\\
-  \vdots\\
-  z(u_m^*)\\
-\end{pmatrix} +
-\begin{pmatrix}
-  \epsilon_1\\
-  \vdots\\
-  \epsilon_n
-\end{pmatrix}
-$$
-
-$\Rightarrow y = Mz + \epsilon$, $\epsilon \sim N(0,\sigma^2I)$, $z\sim N(0,\sigma^2I)$
+## Decision Theoretic Approach
 
 $$
-\begin{aligned}
- \pi(-|y) & \propto & N(y|Mz,\sigma^2I) \times N(z|\sigma^2I) \times \pi(-) \\
- \pi(-|y) &\propto & N(y|0,M\Sigma M'+\sigma^2I) \times \pi(-)
-\end{aligned}
+  L(\theta,\delta) = \begin{cases}
+    \delta,  & \text{if } \theta \in \Theta_0 \\
+    1-\delta,& \text{if } \theta \in \Theta_1
+  \end{cases}
 $$
 
-We need to evaluate $N(y|0,M\Sigma M'+\sigma^2I)$ every mcmc iteration. 
-So, 
-$$
-  (M\Sigma M' + \sigma^2I)^{-1} = \frac{1}{\sigma^2}I - \frac{M}{\sigma^2} (\frac{1}{\sigma_z^2}I+\frac{M'M}{\sigma^2})^{-1} \frac{M'}{\sigma^2}
-$$
-if $m$ (number of knots) is small, poor approximation; $m$ is large then computational issues occur. Choice of kernel $\kappa$ is arbitrary.
-$u$ are the know points. They can be an equispacing grid points of the spatial map. Random knots work too. $m$ is the number of knots.
+for $\delta = \{0,1\}$.
+
+Risk: 
+
+### Frequentist Version
 
 $$
-  y = \sum_l^L \kappa_l z_l + \epsilon
+  R(\theta,\delta) = \int~L(\theta,\delta(x)) f(x|\theta)~dx
 $$
 
-$\kappa_l = \kappa(x-u_l^*)$ but we do not known which $\kappa$ to use. Sometimes, wavelet based functions.
-
-
-## Gaussian Predictive Process Model (Bauerjee, Gelfand, Finley & Sang, JRSS-B, 2008)
-
-- knots: $s^* = s_1^*, ..., s_m^*$
-- $w(s)$: the GP to fit to the data
-- Goal is to fit $y=\mu(s)+\epsilon$, $\mu \sim GP(0,\kappa(.,.))$
-- Fit instead $y = \tilde\mu(s) + \epsilon$ where $\tilde\mu(s) = E[\mu(s) | \mu(s_1^*),..\mu(s_m^*)]$
-
 $$
-\begin{pmatrix}
-  \mu(s)\\
-  \mu(s_1^*)\\
-  \vdots\\
-  \mu(s_m^*)\\
-\end{pmatrix} \sim N(0,G)
+  \begin{cases}
+    P(\delta(x)=1) & \theta\in\Theta_0  \text{ Type I error} \\
+    P(\delta(x)=0) & \theta\in\Theta_1  \text{ Type II error}
+  \end{cases}
 $$
 
-Where $G$ is 
-$$
-\begin{pmatrix}
-  \tau^2 & C \\
-  C' & K^*
-\end{pmatrix}
-$$
+### Bayesian Version
 
-So, $E[\mu(s) | \mu(s_1^*),..\mu(s_m^*)]  =  0 + C (K^*)^{-1} \mu(s^*)$
-
-if $C(K^*)^{-1}$ is the basis function and $\mu(s^*)$ is the basis coefficients, then
 $$
-  \begin{aligned}
-    y &= \tilde\mu(s) + \epsilon \\
-    &= C(s) (K^*)^{-1} \mu(s^*) + \epsilon \\
-    &= H\mu(s^*) + \epsilon
-  \end{aligned}
-$$
-where, $\epsilon \sim N(0,\sigma^2I)$
-
-Now, 
-$$
-  \pi(-|y) \propto N(y | H\mu(s^*), \sigma^2I) \times N(\mu(s^*)|0,K^*) \times \pi(-)
-  \pi(-|y) \propto N(y | 0, \sigma^2I + HK^*H') \times \pi(-)
-$$
-The second line is obtained by integrating out $\mu(s^*)$.
-
-Now we can use woodbury to invert the covariance matrix
-$$
-  (\sigma^2I + HK^*H')^{-1} = \frac{1}{\sigma^2}I - \frac{H}{\sigma^2} \p{(K^*)^{-1}+\frac{H'H}{\sigma^2}}^{-1} \frac{H'}{\sigma^2}
+  \int ~ L(\theta,\delta(x)) \pi(\theta|x) ~ dx = \begin{cases}
+    \pi(\theta\in\Theta_1|x), & \delta=0 ~ \text{ (Don't reject) }\\
+    \pi(\theta\in\Theta_0|x), & \delta=1 ~ \text{ (reject) }
+  \end{cases}
 $$
 
-$n = 10000, m = 500-600$
+## Bayes Factors
 
+The posterior odds ratio is given by 
 
-## Sparsity based methods
+$$
+  \frac{p(\Theta_0|x)}{p(\Theta_1|x)} = \frac{p(x|H_0)}{p(x|H_1)} \frac{p(H_0)}{p(H_1)}
+$$
 
-The problem once again is inverting $G=(\sigma^2I+K)$ which is $n\times n$. This is $O(n^3)$. If we can strategically make $G$ sparse, we can invert the matrix in much less time.
+The factor $B_{01} = \frac{p(x|H_0)}{p(x|H_1)}$ updates the prior odds ratio to the posterior odds ratio. This is known as the Bayes Factor in favr of $H_0$.
+
+When $H_0$ and $H_1$ are both simple hypotheses, the BF corresponds to the likelihood ratio $B_{01}=\frac{p(x|\theta_0)}{p(x|\theta_1)}$. In general, if $g_i(\theta)$ is the prior for $\theta$ under $H_i$, then
+
+$$
+  B_{01} = \frac{\int_{\Theta_0}~p(x|\theta)g_0(\theta)~d\theta}{\int_{\Theta_1}~p(x|\theta)g_1(\theta)~d\theta} = \frac{m_0(x)}{m_1(x)}
+$$
+
+|:---:|:---:|:---:|
+|$\log_{10} BF(H_1,H_0)$|$BF(H_1,H_0)$|Evidence against $H_0$|
+|---|---|---|
+|0-.5|1-3.2|Not work more that mentioning|
+|.5-1|3.2-10|Substantial|
+|1-2|10-100|strong|
+|$> 2$|$> 100$|Decisive|
+
+Bayes factors cannot be reconciled with the p-values in two-sided tests.
+
+$B_{ij}(x) = \frac{m_i(x)}{m_j(x)}$, $p(M_k|x) = \p{\sum_{i=1}^m \frac{p(M_i)}{p(M_k)}B_{jk}}^{-1}$,
+$m_k(x) = \int_{\Theta_k}~p_k(x|\theta_k)p_k(\theta_k)~d\theta_k$
+
+If the priors $p_k(\theta_k)$ are defined up to a proportionality constant $c_k$, then the BF will depend on the ratio of such constants. If the priors are proper densities, then we have
+
+$$
+  c_k^{-1} = \int_{\Theta_k} p_k(\theta_k)d\theta_k
+$$
+
+and then the BF is uniquely defined. For improper priors, not defined.
