@@ -9,6 +9,8 @@ header-includes:
     - \newcommand{\bk}[1]{\left[#1\right]}
     - \newcommand{\bc}[1]{ \{#1\} }
     - \newcommand{\abs}[1]{ \left|#1\right| }
+    - \newcommand{\mat}{ \begin{pmatrix} }
+    - \newcommand{\tam}{ \end{pmatrix} }
 ---
 
 $$
