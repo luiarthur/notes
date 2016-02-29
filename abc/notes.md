@@ -1,5 +1,5 @@
 ---
-title: Woodbury for GP
+title: Sparsity Based Methods
 geometry: margin=1in
 fontsize: 12pt
 header-includes: 
@@ -13,126 +13,81 @@ header-includes:
     - \newcommand{\tam}{ \end{pmatrix} }
 ---
 
-$$
-\begin{aligned}
-  y|\mu, \sigma^2 &\sim N(\mu(x), \sigma^2I) \\
-  \mu &\sim N(0, K) \\
-  \Rightarrow\\
-  \pi(\centerdot | y) &\propto N(y | 0, \sigma^2I+K)
-\end{aligned}
-$$
-
-For matrix inversion of $\sigma^2I+K$ there are two ways to solve
-
-1. Low rank methods
-2. Sparsity based methods
-
-## Low rank methods
-
-  - Kernel convolution (Higdon 2001)
-      - $\mu(x) \int~\kappa(x-u)z(u)~du$
-      - if $\mu(x)$ is a Gaussian it can be written in the above way where $\kappa(\cdot)$ is some function and $z(u)$ is a white noise process.
-      - $\mu(x) \approx \sum_{l=1}^m \kappa(x-u^*_l) z(u^*_l)$, $u_l^*$ are $p\times 1$
-      - $y_i = \sum_{l=1}^m \kappa(x-u_l^*)z(u_l^*) + \epsilon_i$ becomes the new fitted model instead of the original $y_i = \mu(x_i) + \epsilon_i$
-$$
-\begin{pmatrix}
-  y_1 \\
-  \vdots\\
-  y_n
-\end{pmatrix}
-=
-\begin{pmatrix}
-  \kappa(x_1-u_1^*) & \cdots &\kappa(x_1-u_m^*)\\
-  \vdots & & \vdots\\
-  \kappa(x_n-u_1^*) & \cdots &\kappa(x_n-u_m^*)\\
-\end{pmatrix}
-\begin{pmatrix}
-  z(u_1^*)\\
-  \vdots\\
-  z(u_m^*)\\
-\end{pmatrix} +
-\begin{pmatrix}
-  \epsilon_1\\
-  \vdots\\
-  \epsilon_n
-\end{pmatrix}
-$$
-
-$\Rightarrow y = Mz + \epsilon$, $\epsilon \sim N(0,\sigma^2I)$, $z\sim N(0,\sigma^2I)$
+In the GP, the covariance function is,
 
 $$
-\begin{aligned}
- \pi(-|y) & \propto & N(y|Mz,\sigma^2I) \times N(z|\sigma^2I) \times \pi(-) \\
- \pi(-|y) &\propto & N(y|0,M\Sigma M'+\sigma^2I) \times \pi(-)
-\end{aligned}
+  \tau^2 \exp\bc{-\phi \norm{s-s'}} = cov(\mu(s),\mu(s')) > 0
 $$
 
-We need to evaluate $N(y|0,M\Sigma M'+\sigma^2I)$ every mcmc iteration. 
-So, 
-$$
-  (M\Sigma M' + \sigma^2I)^{-1} = \frac{1}{\sigma^2}I - \frac{M}{\sigma^2} (\frac{1}{\sigma_z^2}I+\frac{M'M}{\sigma^2})^{-1} \frac{M'}{\sigma^2}
-$$
-if $m$ (number of knots) is small, poor approximation; $m$ is large then computational issues occur. Choice of kernel $\kappa$ is arbitrary.
-$u$ are the know points. They can be an equispacing grid points of the spatial map. Random knots work too. $m$ is the number of knots.
+- Complexity for predictive process: $O(m^3+m^2n)$, and only good if $m \approx \sqrt{n}$, so complexity is about $O(n^2)$.
+- Complexity for GP: $O(n^3)$.
+
+Matrix to invert is $$ K + \sigma^2I $$ has no zero-entries. In sparsity based methods, the goal is to sparsfy the matrix $K$ and employ sparse matrix. ($n\log(n)$)
+
+Cannot randomly make entries in $K$ zero, because the matrix will lose positive definiteness. So, we use sparsity based methods.
+
+
+## Compactly Supported Correlation Functions
+
+$\kappa(s,s',\delta)$ s.t. $\kappa(s,s',\delta) =0$ iif $\norm{s-s'} > \delta$
+
+For example:
+
+- $\kappa(s,s',\delta) = \p{\bk{1-\frac{ \norm{s-s'}} {\nu}}_+}^4 \p{1+\frac{4\norm{s-s'}}{\nu}}$
+- $\kappa(s,s',\delta) = \p{\bk{1-\frac{ \norm{s-s'}} {\nu}}_+}^2 \p{1+\frac{2\norm{s-s'}}{\nu}}$
+
+Use Kolmogorov consistency theorem to show that the covariance functions are *valid*.
+
+Suppose $\mu \sim GP(\cdot, \kappa(\cdot,\cdot,\theta))$. Instead of fitting $y = \mu(s) + \epsilon$ we fit
 
 $$
-  y = \sum_l^L \kappa_l z_l + \epsilon
+  y_i = \mu(s_i)w(s_i) + \epsilon
 $$
 
-$\kappa_l = \kappa(x-u_l^*)$ but we do not known which $\kappa$ to use. Sometimes, wavelet based functions.
-
-
-## Gaussian Predictive Process Model (Bauerjee, Gelfand, Finley & Sang, JRSS-B, 2008)
-
-- knots: $s^* = s_1^*, ..., s_m^*$
-- $w(s)$: the GP to fit to the data
-- Goal is to fit $y=\mu(s)+\epsilon$, $\mu \sim GP(0,\kappa(.,.))$
-- Fit instead $y = \tilde\mu(s) + \epsilon$ where $\tilde\mu(s) = E[\mu(s) | \mu(s_1^*),..\mu(s_m^*)]$
+where 
 
 $$
-\begin{pmatrix}
-  \mu(s)\\
-  \mu(s_1^*)\\
-  \vdots\\
-  \mu(s_m^*)\\
-\end{pmatrix} \sim N(0,G)
+  w(s_1,...,s_n) \sim GP(0,\kappa_\delta(\cdot,\cdot))
 $$
 
-Where $G$ is 
-$$
-\begin{pmatrix}
-  \tau^2 & C \\
-  C' & K^*
-\end{pmatrix}
-$$
+is a compactly supported correlation function.
 
-So, $E[\mu(s) | \mu(s_1^*),..\mu(s_m^*)]  =  0 + C (K^*)^{-1} \mu(s^*)$
+## Sparsity Based Methods
 
-if $C(K^*)^{-1}$ is the basis function and $\mu(s^*)$ is the basis coefficients, then
-$$
-  \begin{aligned}
-    y &= \tilde\mu(s) + \epsilon \\
-    &= C(s) (K^*)^{-1} \mu(s^*) + \epsilon \\
-    &= H\mu(s^*) + \epsilon
-  \end{aligned}
-$$
-where, $\epsilon \sim N(0,\sigma^2I)$
+$K_1$  is the $n\times n$ covariance matrix s.t. $K{1,ij} = cov(\mu(s_i)w(s_i),\mu(s_j)w(s_j))$
 
-Now, 
-$$
-  \pi(-|y) \propto N(y | H\mu(s^*), \sigma^2I) \times N(\mu(s^*)|0,K^*) \times \pi(-)
-  \pi(-|y) \propto N(y | 0, \sigma^2I + HK^*H') \times \pi(-)
-$$
-The second line is obtained by integrating out $\mu(s^*)$.
+This is equal to $\kappa(s_i,s_j,\theta) \kappa_\delta(s_i,s_j)$, where $\delta$ is tuned, and $\theta$ are the hyperparameters.
 
-Now we can use woodbury to invert the covariance matrix
-$$
-  (\sigma^2I + HK^*H')^{-1} = \frac{1}{\sigma^2}I - \frac{H}{\sigma^2} \p{(K^*)^{-1}+\frac{H'H}{\sigma^2}}^{-1} \frac{H'}{\sigma^2}
-$$
+So, $K_{1,ij} = 0$ or nonzero. Impose more sparsity in $K_1\Rightarrow$  choose smaller $\delta$.
 
-$n = 10000, m = 500-600$
+### Sang(2012) JRSB
+
+Instead of $y_i = \mu(s_i)w(s_i) + \epsilon$, loog at the residuals the predictive process 
+
+$$y = \tilde{\mu}(s) + (\mu(s)-\tilde{\mu}(s))w(s) + \epsilon$$
+$$y = \text{global structure} + (\text{local structure}) $$
+
+where $\tilde{\mu}(s) = E[\mu(s) | \mu(s_1^*),...,\mu(s_m^*)]$. $\tilde{\mu}(s)$ is going  to capture the long range dependicies between observations, but destroys (interpolates) local structure. Not scalable for more than 10000 observations.
 
 
-## Sparsity based methods
+### Fuentes Moutse, Michael Stein
 
-The problem once again is inverting $G=(\sigma^2I+K)$ which is $n\times n$. This is $O(n^3)$. If we can strategically make $G$ sparse, we can invert the matrix in much less time.
+Suppose covariance function of this type (isotropic)
+
+$$
+  \tau^2 \exp\bc{-\phi \norm{s-s'}} = \kappa(s,s') = \kappa(\norm{s-s'}) = \kappa(d)
+$$
+
+$$
+  \kappa(d) = \int~e^{-2\pi i \lambda}\psi(\lambda)~d\lambda
+$$
+
+where $\psi(\lambda)$ is the Fourier transform of $\kappa$. For the Matern Correlation, there is a closed form Fourier transform (look it up because instructor didn't remember). Do the analysis in Fourier domain, and then back transform with inverse Fourier.
+
+Broadly,
+
+1. Instead of the data domain, work in the Fourier domain.
+2. Show cleverness in estimating $\psi(\lambda)$ efficiently.
+3. Use inverse Fourier transform.
+
+Not interpretable. But scalable.
