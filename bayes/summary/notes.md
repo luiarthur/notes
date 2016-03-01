@@ -32,7 +32,8 @@ The null is rejected if some test statistic is larger than some predetermined cr
 The Type I and Type II errors ($\alpha$ and $\beta$ respectively) are reported. They are respectively
 the probabilities of falsely rejecting the null hypothesis and falsely accepting the null hypothesis.
 This is different from the Fisherian philosophy because Neyman and Pearson *insisted* that a null
-hypothesis cannot be tested alone, by needs to be accompanied by an alternative.
+hypothesis cannot be tested alone, by needs to be accompanied by an alternative. Neyman, however, rejected 
+the Fisherian philosophy because it violated the Frequentist principle.
 
 Jeffreys uses Bayes factors (or likelihood ratio) for hypothesis testing. The bayes factor is computed as the 
 ratio of the likelihoods under the null and alternative. That is
