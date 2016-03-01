@@ -1,0 +1,16 @@
+---
+title: Hi
+date: 2016-03-01
+geometry: margin=1in
+fontsize: 12pt
+header-includes: 
+    - \usepackage{bm}
+    - \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+    - \newcommand{\p}[1]{\left(#1\right)}
+    - \newcommand{\bk}[1]{\left[#1\right]}
+    - \newcommand{\bc}[1]{ \{#1\} }
+    - \newcommand{\abs}[1]{ \left|#1\right| }
+    - \newcommand{\mat}{ \begin{pmatrix} }
+    - \newcommand{\tam}{ \end{pmatrix} }
+---
+
