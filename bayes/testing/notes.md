@@ -74,13 +74,15 @@ $$
 \end{array}
 $$
 
-Int this case it is also possible to obtain an approximation to the BF using samples from the posterior distribution of $M_1$. The approximation will have the form
+Int this case it is also possible to obtain an approximation to the BF using
+samples from the posterior distribution of $M_1$. The approximation will have
+the form
 
 $$
   \sum_{m=1}^M r(\theta^{(m)})
 $$
 
-Exercise: find $r(\theta^{(m)}$
+Exercise: find $r(\theta^{(m)})$
 
 ## Hierarchical Models
 
