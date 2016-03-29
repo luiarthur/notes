@@ -13,6 +13,10 @@ header-includes:
     - \newcommand{\tam}{ \end{pmatrix} }
 ---
 
+# Resources
+
+- [Course Website](https://ams256-spring16-01.courses.soe.ucsc.edu/)
+
 Linear models
 : $\Rightarrow$ linear in "parameters". That is 
 
