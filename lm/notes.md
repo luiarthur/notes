@@ -77,3 +77,27 @@ Basis: If $M$ is a subspace of $S$ and if $\bc{x_1,...,x_r}\in S$ is a linearly 
 Rank:
 
 Singular:
+
+*** 
+
+Nullspace
+: $N(A) = \bc{y | Ay = 0}$. Basically the (homogeneous) solution(s) to $Ay=0$.
+
+Rank of Column Space
+: rank$C(A)$ = rank($A$)
+
+Rank of Nullspace
+: rank($N(A)$) = rows($A$) - rank($A$)
+
+Orthonormal
+:
+
+Orthogonal Complement
+: 
+
+Figure
+:
+
+Projection
+:
+
